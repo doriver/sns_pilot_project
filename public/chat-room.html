@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>채팅방</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div id="nav"></div>
+  <h1 id="title">채팅방</h1>
+  <div id="ownerActions"></div>
+  <div class="chat-layout">
+    <div>
+      <div id="messages"></div>
+      <form id="f" style="display:flex; gap:6px; margin-top:8px">
+        <input name="text" placeholder="메시지" required />
+        <button type="submit">전송</button>
+      </form>
+    </div>
+    <div class="participants">
+      <h4>참여자</h4>
+      <ul id="participants"></ul>
+    </div>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="/js/api.js"></script>
+  <script src="/js/nav.js"></script>
+  <script>
+    const roomId = new URLSearchParams(location.search).get('id');
+    const me = API.getUser();
+    const token = API.getToken();
+    if (!token) location.href = '/login.html';
+
+    const msgBox = document.getElementById('messages');
+    function append(html, cls = '') {
+      const el = document.createElement('div');
+      el.className = `msg ${cls}`;
+      el.innerHTML = html;
+      msgBox.appendChild(el);
+      msgBox.scrollTop = msgBox.scrollHeight;
+    }
+    function escapeHtml(s) { return (s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+
+    (async () => {
+      const room = await API.get(`/api/chat-rooms/${roomId}`);
+      document.getElementById('title').innerText = room.name;
+      if (me && String(room.owner?._id || room.owner) === String(me._id)) {
+        document.getElementById('ownerActions').innerHTML = `<button id="closeBtn">채팅방 종료</button>`;
+      }
+    })();
+
+    const socket = io('/chat', { auth: { token } });
+    socket.on('connect', () => {
+      socket.emit('join', { roomId }, (res) => {
+        if (res?.error) { alert(res.error); location.href = '/chat-list.html'; }
+      });
+    });
+    socket.on('connect_error', (e) => alert('접속 실패: ' + e.message));
+    socket.on('participants', (list) => {
+      document.getElementById('participants').innerHTML = list.map((u) =>
+        `<li>${escapeHtml(u.nickname)}</li>`).join('');
+    });
+    socket.on('message', (m) => {
+      append(`<b>${escapeHtml(m.user.nickname)}</b>: ${escapeHtml(m.text)}`);
+    });
+    socket.on('system', (m) => append(escapeHtml(m.text), 'system'));
+    socket.on('closed', () => {
+      alert('채팅방이 종료되었습니다.');
+      location.href = '/chat-list.html';
+    });
+
+    document.getElementById('f').onsubmit = (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      socket.emit('message', { text: fd.get('text') });
+      e.target.reset();
+    };
+
+    document.addEventListener('click', (e) => {
+      if (e.target.id === 'closeBtn') {
+        if (!confirm('종료?')) return;
+        socket.emit('close', { roomId }, (res) => {
+          if (res?.error) alert(res.error);
+        });
+      }
+    });
+
+    window.addEventListener('beforeunload', () => socket.emit('leave'));
+  </script>
+</body>
+</html>

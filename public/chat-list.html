@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>채팅방 목록</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div id="nav"></div>
+  <h1>채팅방 목록</h1>
+  <div id="createBox"></div>
+  <div id="list"></div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/nav.js"></script>
+  <script>
+    const me = API.getUser();
+    if (me && (me.role === 'influencer' || me.role === 'admin')) {
+      document.getElementById('createBox').innerHTML = `
+        <form id="cf" class="card">
+          <input name="name" placeholder="채팅방 이름" required />
+          <input name="maxUsers" type="number" min="2" max="500" placeholder="최대 인원" required />
+          <button type="submit">채팅방 생성</button>
+        </form>
+      `;
+      document.getElementById('cf').onsubmit = async (e) => {
+        e.preventDefault();
+        const fd = new FormData(e.target);
+        await API.post('/api/chat-rooms', {
+          name: fd.get('name'), maxUsers: Number(fd.get('maxUsers')),
+        });
+        load();
+      };
+    }
+
+    async function load() {
+      const rooms = await API.get('/api/chat-rooms');
+      document.getElementById('list').innerHTML = rooms.map((r) => `
+        <div class="card">
+          <h3>${escapeHtml(r.name)}</h3>
+          <div class="meta">개설: ${r.owner?.nickname} · ${r.currentUsers}/${r.maxUsers}명</div>
+          <a href="/chat-room.html?id=${r._id}">입장</a>
+        </div>
+      `).join('') || '<p>열려있는 방이 없습니다.</p>';
+    }
+    function escapeHtml(s) { return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+    load().catch((e) => document.getElementById('list').innerText = e.message);
+  </script>
+</body>
+</html>

@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>로그인</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div id="nav"></div>
+  <h1>로그인</h1>
+  <form id="f">
+    <input name="email" type="email" placeholder="이메일" required />
+    <input name="password" type="password" placeholder="비밀번호" required />
+    <button type="submit">로그인</button>
+  </form>
+  <p id="msg"></p>
+  <p><a href="/signup.html">회원가입</a></p>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/nav.js"></script>
+  <script>
+    document.getElementById('f').onsubmit = async (e) => {
+      e.preventDefault();
+      const fd = new FormData(e.target);
+      try {
+        const { token, user } = await API.post('/api/auth/login', {
+          email: fd.get('email'), password: fd.get('password'),
+        });
+        API.setToken(token);
+        API.setUser(user);
+        location.href = '/';
+      } catch (err) {
+        document.getElementById('msg').innerText = err.message;
+      }
+    };
+  </script>
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(node -e \"require\\('./server/app.js'\\)\")",
+      "Bash(curl -s http://localhost:3000/api/health)",
+      "Bash(kill %1)",
+      "Bash(node --check server/app.js)",
+      "Bash(node --check server/sockets/chat.js)",
+      "Bash(node --check server/controllers/post.controller.js)"
+    ]
+  }
+}

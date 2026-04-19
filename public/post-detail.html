@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>글 상세</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div id="nav"></div>
+  <div id="post">로딩...</div>
+  <h3>댓글</h3>
+  <div id="comments"></div>
+  <form id="cf" style="margin-top:8px">
+    <textarea name="content" rows="2" placeholder="댓글" required></textarea>
+    <button type="submit">작성</button>
+  </form>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/nav.js"></script>
+  <script>
+    const id = new URLSearchParams(location.search).get('id');
+    const me = API.getUser();
+
+    async function load() {
+      const post = await API.get(`/api/posts/${id}`);
+      const liked = me && (post.likeUsers || []).some((u) => String(u) === String(me._id));
+      document.getElementById('post').innerHTML = `
+        <div class="card">
+          <div class="meta">${post.author?.nickname} · ${new Date(post.createdAt).toLocaleString()} · 조회 ${post.viewCount}</div>
+          <p>${escapeHtml(post.content)}</p>
+          ${(post.images || []).map((src) => `<img src="${src}" />`).join('')}
+          <p>
+            <button id="likeBtn">${liked ? '♥' : '♡'} ${post.likeUsers?.length || 0}</button>
+            ${me && (String(post.author?._id || post.author) === String(me._id) || me.role === 'admin')
+              ? `<button id="delBtn">삭제</button>` : ''}
+          </p>
+        </div>
+      `;
+      const likeBtn = document.getElementById('likeBtn');
+      if (likeBtn) likeBtn.onclick = async () => {
+        if (!me) return (location.href = '/login.html');
+        await API[liked ? 'del' : 'post'](`/api/posts/${id}/like`, {});
+        load();
+      };
+      const delBtn = document.getElementById('delBtn');
+      if (delBtn) delBtn.onclick = async () => {
+        if (!confirm('삭제?')) return;
+        await API.del(`/api/posts/${id}`);
+        location.href = '/posts.html';
+      };
+      loadComments();
+    }
+
+    async function loadComments() {
+      const list = await API.get(`/api/posts/${id}/comments`);
+      document.getElementById('comments').innerHTML = list.map((c) => `
+        <div class="card">
+          <div class="meta">${c.author?.nickname} · ${new Date(c.createdAt).toLocaleString()}</div>
+          <p>${escapeHtml(c.content)}</p>
+          ${me && (String(c.author?._id) === String(me._id) || me.role === 'admin')
+            ? `<button data-del="${c._id}">삭제</button>` : ''}
+        </div>
+      `).join('');
+      document.querySelectorAll('[data-del]').forEach((b) => {
+        b.onclick = async () => {
+          await API.del(`/api/posts/${id}/comments/${b.dataset.del}`);
+          loadComments();
+        };
+      });
+    }
+
+    document.getElementById('cf').onsubmit = async (e) => {
+      e.preventDefault();
+      if (!me) return (location.href = '/login.html');
+      const fd = new FormData(e.target);
+      await API.post(`/api/posts/${id}/comments`, { content: fd.get('content') });
+      e.target.reset();
+      loadComments();
+    };
+
+    function escapeHtml(s) { return (s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+    load().catch((e) => document.getElementById('post').innerText = e.message);
+  </script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>타임라인</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div id="nav"></div>
+  <h1>타임라인 (인기 10개)</h1>
+  <div id="list">로딩...</div>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/nav.js"></script>
+  <script>
+    (async () => {
+      try {
+        const posts = await API.get('/api/posts/timeline');
+        const list = document.getElementById('list');
+        if (!posts.length) { list.innerHTML = '<p>아직 글이 없습니다.</p>'; return; }
+        list.innerHTML = posts.map((p) => `
+          <div class="card">
+            <div class="meta">${p.author?.nickname || '익명'} · ${new Date(p.createdAt).toLocaleString()} · 조회 ${p.viewCount} · 좋아요 ${p.likeUsers?.length || 0}</div>
+            <a href="/post-detail.html?id=${p._id}"><h3>${escapeHtml(p.content.slice(0, 60))}</h3></a>
+            ${(p.images || []).slice(0, 1).map((src) => `<img src="${src}" />`).join('')}
+          </div>
+        `).join('');
+      } catch (e) {
+        document.getElementById('list').innerText = e.message;
+      }
+    })();
+
+    function escapeHtml(s) { return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+  </script>
+</body>
+</html>

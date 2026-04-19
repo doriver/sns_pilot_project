@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <title>회원가입</title>
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div id="nav"></div>
+  <h1>회원가입</h1>
+  <form id="f" enctype="multipart/form-data">
+    <input name="email" type="email" placeholder="이메일" required />
+    <input name="nickname" placeholder="닉네임" required />
+    <input name="password" type="password" placeholder="비밀번호" required />
+    <input name="profileImage" type="file" accept="image/*" />
+    <button type="submit">가입</button>
+  </form>
+  <p id="msg"></p>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/nav.js"></script>
+  <script>
+    document.getElementById('f').onsubmit = async (e) => {
+      e.preventDefault();
+      try {
+        await API.upload('/api/auth/signup', new FormData(e.target));
+        location.href = '/login.html';
+      } catch (err) {
+        document.getElementById('msg').innerText = err.message;
+      }
+    };
+  </script>
+</body>
+</html>
