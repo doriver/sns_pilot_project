@@ -7,7 +7,11 @@
       "Bash(kill %1)",
       "Bash(node --check server/app.js)",
       "Bash(node --check server/sockets/chat.js)",
-      "Bash(node --check server/controllers/post.controller.js)"
+      "Bash(node --check server/controllers/post.controller.js)",
+      "Bash(node --check server/models/ChatMessage.js)",
+      "Bash(node --check server/models/ChatParticipation.js)",
+      "Bash(node --check server/controllers/chat.controller.js)",
+      "Bash(node --check server/routes/chat.routes.js)"
     ]
   }
 }

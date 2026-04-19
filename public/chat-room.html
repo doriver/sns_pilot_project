@@ -61,6 +61,9 @@
       document.getElementById('participants').innerHTML = list.map((u) =>
         `<li>${escapeHtml(u.nickname)}</li>`).join('');
     });
+    socket.on('history', (list) => {
+      list.forEach((m) => append(`<b>${escapeHtml(m.user.nickname)}</b>: ${escapeHtml(m.text)}`));
+    });
     socket.on('message', (m) => {
       append(`<b>${escapeHtml(m.user.nickname)}</b>: ${escapeHtml(m.text)}`);
     });
@@ -73,7 +76,9 @@
     document.getElementById('f').onsubmit = (e) => {
       e.preventDefault();
       const fd = new FormData(e.target);
-      socket.emit('message', { text: fd.get('text') });
+      socket.emit('message', { text: fd.get('text') }, (res) => {
+        if (res?.error) alert('전송 실패: ' + res.error);
+      });
       e.target.reset();
     };
 
