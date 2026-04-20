@@ -11,6 +11,7 @@
   <div id="list">로딩...</div>
 
   <script src="/js/api.js"></script>
+  <script src="/js/avatar.js"></script>
   <script src="/js/nav.js"></script>
   <script>
     (async () => {
@@ -22,7 +23,7 @@
           const images = (p.images || []).map((src) => `<img src="${src}" />`).join('');
           const comments = (p.comments || []).map((c) => `
             <div class="comment-item">
-              <span class="c-author">${escapeHtml(c.author?.nickname || '익명')}</span>
+              <span class="c-author">${Avatar.withName(c.author, 'sm')}</span>
               <span class="c-text">${escapeHtml(c.content)}</span>
             </div>
           `).join('');
@@ -35,7 +36,7 @@
                 <h2 class="title">${escapeHtml(p.title || '(제목 없음)')}</h2>
               </a>
               <div class="meta">
-                ${escapeHtml(p.author?.nickname || '익명')} · ${new Date(p.createdAt).toLocaleString()}
+                ${Avatar.withName(p.author, 'sm')} · ${new Date(p.createdAt).toLocaleString()}
                 · 조회 ${p.viewCount} · ♥ ${p.likeUsers?.length || 0}
               </div>
               <div class="content">${escapeHtml(p.content)}</div>

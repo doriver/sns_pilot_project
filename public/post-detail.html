@@ -16,6 +16,7 @@
   </form>
 
   <script src="/js/api.js"></script>
+  <script src="/js/avatar.js"></script>
   <script src="/js/nav.js"></script>
   <script>
     const id = new URLSearchParams(location.search).get('id');
@@ -27,7 +28,7 @@
       document.getElementById('post').innerHTML = `
         <div class="card post-detail">
           <h2 class="title">${escapeHtml(post.title || '(제목 없음)')}</h2>
-          <div class="meta">${post.author?.nickname} · ${new Date(post.createdAt).toLocaleString()} · 조회 ${post.viewCount}</div>
+          <div class="meta">${Avatar.withName(post.author, 'md')} · ${new Date(post.createdAt).toLocaleString()} · 조회 ${post.viewCount}</div>
           <p class="content">${escapeHtml(post.content)}</p>
           ${(post.images || []).map((src) => `<img src="${src}" />`).join('')}
           <p>
@@ -56,7 +57,7 @@
       const list = await API.get(`/api/posts/${id}/comments`);
       document.getElementById('comments').innerHTML = list.map((c) => `
         <div class="card">
-          <div class="meta">${c.author?.nickname} · ${new Date(c.createdAt).toLocaleString()}</div>
+          <div class="meta">${Avatar.withName(c.author, 'sm')} · ${new Date(c.createdAt).toLocaleString()}</div>
           <p>${escapeHtml(c.content)}</p>
           ${me && (String(c.author?._id) === String(me._id) || me.role === 'admin')
             ? `<button data-del="${c._id}">삭제</button>` : ''}

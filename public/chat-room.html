@@ -25,6 +25,7 @@
 
   <script src="/socket.io/socket.io.js"></script>
   <script src="/js/api.js"></script>
+  <script src="/js/avatar.js"></script>
   <script src="/js/nav.js"></script>
   <script>
     const roomId = new URLSearchParams(location.search).get('id');
@@ -59,13 +60,13 @@
     socket.on('connect_error', (e) => alert('접속 실패: ' + e.message));
     socket.on('participants', (list) => {
       document.getElementById('participants').innerHTML = list.map((u) =>
-        `<li>${escapeHtml(u.nickname)}</li>`).join('');
+        `<li>${Avatar.withName(u, 'lg')}</li>`).join('');
     });
     socket.on('history', (list) => {
-      list.forEach((m) => append(`<b>${escapeHtml(m.user.nickname)}</b>: ${escapeHtml(m.text)}`));
+      list.forEach((m) => append(`${Avatar.withName(m.user, 'lg')}: ${escapeHtml(m.text)}`));
     });
     socket.on('message', (m) => {
-      append(`<b>${escapeHtml(m.user.nickname)}</b>: ${escapeHtml(m.text)}`);
+      append(`${Avatar.withName(m.user, 'lg')}: ${escapeHtml(m.text)}`);
     });
     socket.on('system', (m) => append(escapeHtml(m.text), 'system'));
     socket.on('closed', () => {

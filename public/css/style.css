@@ -48,3 +48,17 @@ button { padding: 6px 12px; cursor: pointer; }
 .msg { margin: 4px 0; }
 .msg.system { color: #888; font-style: italic; }
 .participants { border: 1px solid #ddd; padding: 8px; }
+.participants ul { list-style: none; padding: 0; margin: 0; }
+.participants li { padding: 4px 0; }
+
+/* 아바타 */
+.avatar { display: inline-block; border-radius: 50%; object-fit: cover; vertical-align: middle; flex-shrink: 0; }
+.avatar-sm { width: 24px; height: 24px; }
+.avatar-md { width: 28px; height: 28px; }
+.avatar-lg { width: 32px; height: 32px; }
+.avatar-initial { color: #fff; text-align: center; font-weight: 600; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+.avatar-sm.avatar-initial { font-size: 11px; }
+.avatar-md.avatar-initial { font-size: 13px; }
+.avatar-lg.avatar-initial { font-size: 14px; }
+.author-chip { display: inline-flex; align-items: center; gap: 6px; vertical-align: middle; }
+.author-name { font-weight: 500; }

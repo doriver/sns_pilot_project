@@ -15,6 +15,7 @@
   <div id="pager" class="pager"></div>
 
   <script src="/js/api.js"></script>
+  <script src="/js/avatar.js"></script>
   <script src="/js/nav.js"></script>
   <script>
     const page = Number(new URLSearchParams(location.search).get('page')) || 1;
@@ -30,7 +31,7 @@
                 <a href="/post-detail.html?id=${p._id}">${escapeHtml(p.title || '(제목 없음)')}</a>
               </div>
               <div class="meta">
-                <span>${escapeHtml(p.author?.nickname || '익명')}</span>
+                <span>${Avatar.withName(p.author, 'sm')}</span>
                 <span>${formatDate(p.createdAt)}</span>
                 <span>조회 ${p.viewCount}</span>
                 <span>♥ ${p.likeUsers?.length || 0}</span>

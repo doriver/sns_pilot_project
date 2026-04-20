@@ -7,7 +7,7 @@ function renderNav() {
     <a href="/posts.html">글 목록</a> |
     <a href="/chat-list.html">채팅</a> |
     ${user
-      ? `<span>${user.nickname} (${user.role})</span> <button id="logoutBtn">로그아웃</button>`
+      ? `${Avatar.withName(user, 'md')} <span class="meta">(${user.role})</span> <button id="logoutBtn">로그아웃</button>`
       : `<a href="/login.html">로그인</a> <a href="/signup.html">회원가입</a>`}
   `;
   const btn = document.getElementById('logoutBtn');

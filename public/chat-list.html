@@ -12,6 +12,7 @@
   <div id="list"></div>
 
   <script src="/js/api.js"></script>
+  <script src="/js/avatar.js"></script>
   <script src="/js/nav.js"></script>
   <script>
     const me = API.getUser();
@@ -38,7 +39,7 @@
       document.getElementById('list').innerHTML = rooms.map((r) => `
         <div class="card">
           <h3>${escapeHtml(r.name)}</h3>
-          <div class="meta">개설: ${r.owner?.nickname} · ${r.currentUsers}/${r.maxUsers}명</div>
+          <div class="meta">개설: ${Avatar.withName(r.owner, 'sm')} · ${r.currentUsers}/${r.maxUsers}명</div>
           <a href="/chat-room.html?id=${r._id}">입장</a>
         </div>
       `).join('') || '<p>열려있는 방이 없습니다.</p>';
