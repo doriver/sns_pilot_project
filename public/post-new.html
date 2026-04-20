@@ -9,6 +9,7 @@
   <div id="nav"></div>
   <h1>글쓰기</h1>
   <form id="f" enctype="multipart/form-data">
+    <input name="title" type="text" placeholder="제목" maxlength="120" required />
     <textarea name="content" rows="6" placeholder="내용" required></textarea>
     <input name="images" type="file" accept="image/*" multiple />
     <button type="submit">등록</button>

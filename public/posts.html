@@ -7,10 +7,12 @@
 </head>
 <body>
   <div id="nav"></div>
-  <h1>글 목록</h1>
-  <p><a href="/post-new.html">글쓰기</a></p>
-  <div id="list"></div>
-  <div id="pager"></div>
+  <div class="list-header">
+    <h1>글 목록</h1>
+    <a class="btn-write" href="/post-new.html">글쓰기</a>
+  </div>
+  <div id="list" class="post-list"></div>
+  <div id="pager" class="pager"></div>
 
   <script src="/js/api.js"></script>
   <script src="/js/nav.js"></script>
@@ -18,13 +20,24 @@
     const page = Number(new URLSearchParams(location.search).get('page')) || 1;
     (async () => {
       try {
-        const data = await API.get(`/api/posts?page=${page}&limit=10`);
-        document.getElementById('list').innerHTML = data.items.map((p) => `
-          <div class="card">
-            <div class="meta">${p.author?.nickname} · ${new Date(p.createdAt).toLocaleString()} · 조회 ${p.viewCount} · 좋아요 ${p.likeUsers?.length || 0}</div>
-            <a href="/post-detail.html?id=${p._id}">${escapeHtml(p.content.slice(0, 80))}</a>
-          </div>
-        `).join('') || '<p>글이 없습니다.</p>';
+        const data = await API.get(`/api/posts?page=${page}&limit=20`);
+        const list = document.getElementById('list');
+        if (!data.items.length) { list.innerHTML = '<p class="empty">글이 없습니다.</p>'; }
+        else {
+          list.innerHTML = data.items.map((p) => `
+            <div class="post-row">
+              <div class="title">
+                <a href="/post-detail.html?id=${p._id}">${escapeHtml(p.title || '(제목 없음)')}</a>
+              </div>
+              <div class="meta">
+                <span>${escapeHtml(p.author?.nickname || '익명')}</span>
+                <span>${formatDate(p.createdAt)}</span>
+                <span>조회 ${p.viewCount}</span>
+                <span>♥ ${p.likeUsers?.length || 0}</span>
+              </div>
+            </div>
+          `).join('');
+        }
         const pager = [];
         for (let i = 1; i <= data.totalPages; i++) {
           pager.push(i === page ? `<b>${i}</b>` : `<a href="?page=${i}">${i}</a>`);
@@ -34,7 +47,15 @@
         document.getElementById('list').innerText = e.message;
       }
     })();
-    function escapeHtml(s) { return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+    function escapeHtml(s) { return (s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+    function formatDate(d) {
+      const dt = new Date(d);
+      const today = new Date();
+      if (dt.toDateString() === today.toDateString()) {
+        return dt.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+      return dt.toLocaleDateString();
+    }
   </script>
 </body>
 </html>

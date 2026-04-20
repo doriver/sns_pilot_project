@@ -6,7 +6,27 @@ exports.timeline = async (req, res, next) => {
     const posts = await Post.find()
       .sort({ viewCount: -1, createdAt: -1 })
       .limit(10)
-      .populate('author', 'nickname profileImage');
+      .populate('author', 'nickname profileImage')
+      .lean();
+    const ids = posts.map((p) => p._id);
+    const comments = await Comment.find({ post: { $in: ids } })
+      .sort({ createdAt: -1 })
+      .populate('author', 'nickname profileImage')
+      .lean();
+    const byPost = new Map();
+    const countByPost = new Map();
+    for (const c of comments) {
+      const key = String(c.post);
+      countByPost.set(key, (countByPost.get(key) || 0) + 1);
+      const arr = byPost.get(key) || [];
+      if (arr.length < 3) arr.push(c);
+      byPost.set(key, arr);
+    }
+    for (const p of posts) {
+      const key = String(p._id);
+      p.comments = (byPost.get(key) || []).slice().reverse();
+      p.commentCount = countByPost.get(key) || 0;
+    }
     res.json(posts);
   } catch (err) { next(err); }
 };
@@ -41,10 +61,11 @@ exports.detail = async (req, res, next) => {
 
 exports.create = async (req, res, next) => {
   try {
-    const { content } = req.body;
+    const { title, content } = req.body;
+    if (!title || !title.trim()) return res.status(400).json({ message: 'title required' });
     if (!content) return res.status(400).json({ message: 'content required' });
     const images = (req.files || []).map((f) => `/uploads/${f.filename}`);
-    const post = await Post.create({ author: req.user._id, content, images });
+    const post = await Post.create({ author: req.user._id, title: title.trim(), content, images });
     res.status(201).json(post);
   } catch (err) { next(err); }
 };
@@ -56,6 +77,7 @@ exports.update = async (req, res, next) => {
     if (String(post.author) !== String(req.user._id)) {
       return res.status(403).json({ message: 'Forbidden' });
     }
+    if (typeof req.body.title === 'string' && req.body.title.trim()) post.title = req.body.title.trim();
     if (typeof req.body.content === 'string') post.content = req.body.content;
     await post.save();
     res.json(post);

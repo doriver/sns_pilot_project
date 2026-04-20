@@ -7,7 +7,7 @@
 </head>
 <body>
   <div id="nav"></div>
-  <h1>타임라인 (인기 10개)</h1>
+  <h1>타임라인 <small class="hint">(인기 10개)</small></h1>
   <div id="list">로딩...</div>
 
   <script src="/js/api.js"></script>
@@ -17,20 +17,45 @@
       try {
         const posts = await API.get('/api/posts/timeline');
         const list = document.getElementById('list');
-        if (!posts.length) { list.innerHTML = '<p>아직 글이 없습니다.</p>'; return; }
-        list.innerHTML = posts.map((p) => `
-          <div class="card">
-            <div class="meta">${p.author?.nickname || '익명'} · ${new Date(p.createdAt).toLocaleString()} · 조회 ${p.viewCount} · 좋아요 ${p.likeUsers?.length || 0}</div>
-            <a href="/post-detail.html?id=${p._id}"><h3>${escapeHtml(p.content.slice(0, 60))}</h3></a>
-            ${(p.images || []).slice(0, 1).map((src) => `<img src="${src}" />`).join('')}
-          </div>
-        `).join('');
+        if (!posts.length) { list.innerHTML = '<p class="empty">아직 글이 없습니다.</p>'; return; }
+        list.innerHTML = posts.map((p) => {
+          const images = (p.images || []).map((src) => `<img src="${src}" />`).join('');
+          const comments = (p.comments || []).map((c) => `
+            <div class="comment-item">
+              <span class="c-author">${escapeHtml(c.author?.nickname || '익명')}</span>
+              <span class="c-text">${escapeHtml(c.content)}</span>
+            </div>
+          `).join('');
+          const more = p.commentCount > 3
+            ? `<a class="more" href="/post-detail.html?id=${p._id}">댓글 ${p.commentCount}개 전체보기 →</a>`
+            : '';
+          return `
+            <article class="timeline-card">
+              <a class="title-link" href="/post-detail.html?id=${p._id}">
+                <h2 class="title">${escapeHtml(p.title || '(제목 없음)')}</h2>
+              </a>
+              <div class="meta">
+                ${escapeHtml(p.author?.nickname || '익명')} · ${new Date(p.createdAt).toLocaleString()}
+                · 조회 ${p.viewCount} · ♥ ${p.likeUsers?.length || 0}
+              </div>
+              <div class="content">${escapeHtml(p.content)}</div>
+              ${images ? `<div class="images">${images}</div>` : ''}
+              ${(p.comments && p.comments.length) || more ? `
+                <div class="comments">
+                  <div class="c-head">댓글 ${p.commentCount || 0}</div>
+                  ${comments || '<div class="comment-item empty">첫 댓글을 남겨보세요.</div>'}
+                  ${more}
+                </div>
+              ` : ''}
+            </article>
+          `;
+        }).join('');
       } catch (e) {
         document.getElementById('list').innerText = e.message;
       }
     })();
 
-    function escapeHtml(s) { return s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
+    function escapeHtml(s) { return (s || '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c])); }
   </script>
 </body>
 </html>

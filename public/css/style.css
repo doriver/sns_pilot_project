@@ -6,6 +6,43 @@ body { font-family: system-ui, sans-serif; max-width: 800px; margin: 0 auto; pad
 .meta { color: #666; font-size: 0.85em; }
 input, textarea, select { width: 100%; padding: 6px; margin: 4px 0; }
 button { padding: 6px 12px; cursor: pointer; }
+.empty { color: #888; padding: 24px 0; text-align: center; }
+.hint { color: #999; font-size: 0.7em; font-weight: normal; }
+
+/* 글 목록 - 1줄 리스트 */
+.list-header { display: flex; justify-content: space-between; align-items: center; }
+.btn-write { display: inline-block; padding: 6px 12px; background: #333; color: #fff; text-decoration: none; border-radius: 6px; font-size: 0.9em; }
+.btn-write:hover { background: #000; }
+.post-list { border-top: 1px solid #eee; }
+.post-row { display: flex; gap: 12px; align-items: center; padding: 10px 4px; border-bottom: 1px solid #eee; }
+.post-row .title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.post-row .title a { color: #222; font-weight: 600; text-decoration: none; }
+.post-row .title a:hover { text-decoration: underline; }
+.post-row .meta { color: #888; font-size: 0.82em; display: flex; gap: 10px; flex-shrink: 0; }
+.pager { margin-top: 16px; text-align: center; }
+.pager a, .pager b { margin: 0 4px; }
+
+/* 타임라인 카드 */
+.timeline-card { border: 1px solid #e4e4e4; border-radius: 10px; padding: 16px 18px; margin-bottom: 16px; background: #fff; }
+.timeline-card .title-link { text-decoration: none; color: inherit; }
+.timeline-card h2.title { margin: 0 0 4px; font-size: 1.25em; }
+.timeline-card .title-link:hover h2.title { color: #0366d6; }
+.timeline-card .meta { color: #777; font-size: 0.85em; margin-bottom: 10px; }
+.timeline-card .content { white-space: pre-wrap; line-height: 1.55; color: #222; margin: 0 0 10px; }
+.timeline-card .images img { max-width: 100%; border-radius: 6px; margin-top: 6px; }
+.timeline-card .comments { border-top: 1px dashed #e0e0e0; margin-top: 12px; padding-top: 10px; }
+.timeline-card .c-head { font-size: 0.85em; color: #555; font-weight: 600; margin-bottom: 6px; }
+.comment-item { font-size: 0.9em; padding: 4px 0; line-height: 1.4; }
+.comment-item.empty { color: #aaa; }
+.comment-item .c-author { font-weight: 600; color: #333; margin-right: 6px; }
+.comment-item .c-text { color: #444; }
+.timeline-card .more { display: inline-block; margin-top: 6px; font-size: 0.85em; color: #0366d6; text-decoration: none; }
+.timeline-card .more:hover { text-decoration: underline; }
+
+/* 글 상세 */
+.post-detail h2.title { margin: 0 0 6px; font-size: 1.4em; }
+.post-detail .content { white-space: pre-wrap; line-height: 1.6; }
+
 .chat-layout { display: grid; grid-template-columns: 1fr 200px; gap: 12px; }
 #messages { height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 8px; }
 .msg { margin: 4px 0; }

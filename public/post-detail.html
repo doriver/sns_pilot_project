@@ -25,9 +25,10 @@
       const post = await API.get(`/api/posts/${id}`);
       const liked = me && (post.likeUsers || []).some((u) => String(u) === String(me._id));
       document.getElementById('post').innerHTML = `
-        <div class="card">
+        <div class="card post-detail">
+          <h2 class="title">${escapeHtml(post.title || '(제목 없음)')}</h2>
           <div class="meta">${post.author?.nickname} · ${new Date(post.createdAt).toLocaleString()} · 조회 ${post.viewCount}</div>
-          <p>${escapeHtml(post.content)}</p>
+          <p class="content">${escapeHtml(post.content)}</p>
           ${(post.images || []).map((src) => `<img src="${src}" />`).join('')}
           <p>
             <button id="likeBtn">${liked ? '♥' : '♡'} ${post.likeUsers?.length || 0}</button>
